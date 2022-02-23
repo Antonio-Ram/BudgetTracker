@@ -22,15 +22,6 @@ request.onerror = function(event) {
     console.log(event.target.errorCode);
 };
 
-// no internet save
-function saveRecord(record) {
-    // open new transaction with the database 
-    const transaction = db.transaction(['new_budget'], 'readwrite');
-    //access the object store for `new_budget`
-    const budgetObjectStore = transaction.objectStore('new_budget');
-    // add record to your store with add method
-    budgetObjectStore.add(record);
-}
 
 function uploadBudget() {
     const transaction = db.transaction(['new_budget'], 'readwrite');
@@ -67,5 +58,15 @@ function uploadBudget() {
         }
     };
 }
+
+// no internet save
+function saveRecord(record) {
+    // open new transaction with the database 
+    const transaction = db.transaction(['new_budget'], 'readwrite');
+    //access the object store for `new_budget`
+    const budgetObjectStore = transaction.objectStore('new_budget');
+    // add record to your store with add method
+    budgetObjectStore.add(record);
+};
 
 window.addEventListener('online', uploadBudget);
