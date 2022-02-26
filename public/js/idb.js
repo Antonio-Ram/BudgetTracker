@@ -22,43 +22,6 @@ request.onerror = function(event) {
     console.log(event.target.errorCode);
 };
 
-
-function uploadBudget() {
-    const transaction = db.transaction(['new_budget'], 'readwrite');
-    const budgetObjectStore = transaction.objectStore('new_budget');
-    //get all records
-    const getAll = budgetObjectStore.getAll();
-    // when successful, run this
-    getAll.onsuccess = function() {
-        if (getAll.result.lengeth > 0) {
-            fetch('/api', {
-                method: 'POST',
-                body: JSON.stringify.apply(getAll.result),
-                headers: {
-                    Accept: 'application/json, test/plain, */*',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(serverResponse => {
-                if(serverResponse.message) {
-                    throw new Error(serverResponse);
-                }
-                const transaction = db.transaction(['new_budget'], 'readwrite');
-                //accss the new_budget object store
-                const budgetObjectStore = transaction.objectStore('new_budget');
-                // clear all items in your store
-                budgetObjectStore.clear();
-
-                alert('All saved budgets have been submitted!');
-            })
-            .catch(err => {
-                console.log(err);
-            });
-        }
-    };
-}
-
 // no internet save
 function saveRecord(record) {
     // open new transaction with the database 
@@ -68,5 +31,47 @@ function saveRecord(record) {
     // add record to your store with add method
     budgetObjectStore.add(record);
 };
+
+
+function uploadBudget() {
+    const transaction = db.transaction(['new_budget'], 'readwrite');
+    const budgetObjectStore = transaction.objectStore('new_budget');
+    //get all records
+    const getAll = budgetObjectStore.getAll();
+    // when successful, run this
+    getAll.onsuccess = function() {
+        if (getAll.result.length > 0) {
+            fetch('/api/transaction', {
+                method: 'POST',
+                body: JSON.stringify.apply(getAll.result),
+                headers: {
+                    Accept: 'application/json, test/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => { response.json()})
+            .then(serverResponse => {
+                if(serverResponse.message) {
+                    throw new Error(serverResponse);
+                }
+                
+
+                alert('All saved budgets have been submitted!');
+            })
+            .then(() => {
+                const transaction = db.transaction(['new_budget'], 'readwrite');
+                //accss the new_budget object store
+                const budgetObjectStore = transaction.objectStore('new_budget');
+                // clear all items in your store
+                budgetObjectStore.clear();
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
+    };
+}
+
+
 
 window.addEventListener('online', uploadBudget);
